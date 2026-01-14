@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Icons } from './Icons';
 import { sendMessageToGemini } from '../services/geminiService';
 import { ChatMessage } from '../types';
+import { jsPDF } from "jspdf";
 
 const AIChatView: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -14,6 +15,9 @@ const AIChatView: React.FC = () => {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isEmailSending, setIsEmailSending] = useState(false);
+  const [emailSuccess, setEmailSuccess] = useState(false);
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -68,9 +72,77 @@ const AIChatView: React.FC = () => {
     }
   };
 
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF();
+    let y = 20;
+
+    // Header
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.setTextColor(99, 102, 241); // Indigo color
+    doc.text("Reporte de Asistente Nova", 10, 15);
+    
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(`Fecha: ${new Date().toLocaleString()}`, 10, 22);
+    doc.line(10, 25, 200, 25);
+    
+    y = 35;
+
+    messages.forEach((msg) => {
+      // Check for page break
+      if (y > 270) {
+        doc.addPage();
+        y = 20;
+      }
+
+      const isUser = msg.role === 'user';
+      const roleTitle = isUser ? "Usuario:" : "Nova AI:";
+      
+      // Role Title
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(isUser ? 75 : 16, isUser ? 85 : 185, isUser ? 99 : 129); // Gray or Emerald-ish
+      doc.text(roleTitle, 10, y);
+      y += 5;
+
+      // Message Body
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(0);
+      
+      const textLines = doc.splitTextToSize(msg.text, 190);
+      doc.text(textLines, 10, y);
+      
+      y += (textLines.length * 5) + 10; // Add spacing between messages
+    });
+
+    doc.save(`nova-consulta-${Date.now()}.pdf`);
+  };
+
+  const handleSendEmail = () => {
+    setIsEmailSending(true);
+    // Simulate API call
+    setTimeout(() => {
+      setIsEmailSending(false);
+      setEmailSuccess(true);
+      setTimeout(() => setEmailSuccess(false), 3000);
+    }, 1500);
+  };
+
   return (
-    <div className="h-[calc(100vh-8rem)] flex flex-col glass-panel rounded-xl overflow-hidden animate-fade-in">
-      {/* Chat Header */}
+    <div className="h-[calc(100vh-8rem)] flex flex-col glass-panel rounded-xl overflow-hidden animate-fade-in relative">
+      
+      {/* Notifications/Toasts */}
+      {emailSuccess && (
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-50 bg-emerald-500/90 text-white px-4 py-2 rounded-full shadow-lg backdrop-blur flex items-center animate-fade-in">
+          <Icons.CheckCircle className="w-4 h-4 mr-2" />
+          <span className="text-sm font-medium">Enviado al correo vinculado</span>
+        </div>
+      )}
+
+      {/* Chat Header with Actions */}
       <div className="p-4 border-b border-white/10 bg-white/5 flex items-center justify-between">
         <div className="flex items-center">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center mr-3 shadow-lg shadow-primary/20">
@@ -83,6 +155,32 @@ const AIChatView: React.FC = () => {
               En línea con Gemini 3.0
             </div>
           </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={handleSendEmail}
+            disabled={isEmailSending}
+            className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-colors text-xs font-medium text-gray-300 hover:text-white"
+            title="Enviar transcripción al correo"
+          >
+            {isEmailSending ? (
+              <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            ) : (
+              <Icons.Mail className="w-3.5 h-3.5" />
+            )}
+            <span>{isEmailSending ? 'Enviando...' : 'Enviar a Correo'}</span>
+          </button>
+          
+          <button 
+            onClick={handleDownloadPDF}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 border border-primary/20 hover:border-primary/40 transition-colors text-xs font-medium text-primary hover:text-primary-100"
+            title="Descargar historial en PDF"
+          >
+            <Icons.Download className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">PDF</span>
+          </button>
         </div>
       </div>
 
@@ -157,7 +255,24 @@ const AIChatView: React.FC = () => {
             <Icons.Send className="w-5 h-5" />
           </button>
         </div>
-        <p className="text-center text-[10px] text-gray-600 mt-2">
+        
+        {/* Mobile Quick Action for Email (visible only on small screens below input) */}
+        <div className="mt-3 flex sm:hidden justify-end">
+           <button 
+             onClick={handleSendEmail}
+             disabled={isEmailSending}
+             className="text-[10px] text-gray-400 flex items-center hover:text-primary transition-colors"
+           >
+             {isEmailSending ? (
+                <div className="w-3 h-3 border border-gray-400 border-t-transparent rounded-full animate-spin mr-1.5"></div>
+             ) : (
+                <Icons.Mail className="w-3 h-3 mr-1.5" />
+             )}
+             Enviar transcripción a mi correo
+           </button>
+        </div>
+
+        <p className="text-center text-[10px] text-gray-600 mt-2 sm:mt-2 hidden sm:block">
           Nova utiliza Gemini AI y puede cometer errores. Verifica la información importante.
         </p>
       </div>

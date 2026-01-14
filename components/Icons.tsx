@@ -29,7 +29,8 @@ import {
   Globe,
   Lock,
   Eye,
-  EyeOff
+  EyeOff,
+  Download
 } from 'lucide-react';
 
 export const Icons = {
@@ -62,5 +63,6 @@ export const Icons = {
   Globe: Globe,
   Lock: Lock,
   Eye: Eye,
-  EyeOff: EyeOff
+  EyeOff: EyeOff,
+  Download: Download
 };
