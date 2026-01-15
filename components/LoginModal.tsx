@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { Icons } from './Icons';
+import { User } from '../types';
 
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSwitchToSignUp: () => void;
+  onLogin: (user: User) => void; // Callback passing user data
 }
 
-const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitchToSignUp }) => {
+const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitchToSignUp, onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
@@ -19,17 +21,24 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitchToSign
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent, role: 'client' | 'owner' = 'client') => {
     e.preventDefault();
     setIsLoading(true);
 
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
-      // Here you would typically handle the auth token
+      
+      const mockUser: User = {
+        name: role === 'client' ? 'Carlos Cliente' : 'Ana Dueña',
+        email: formData.email || (role === 'client' ? 'cliente@demo.com' : 'dueno@demo.com'),
+        role: role,
+        avatar: undefined
+      };
+      
+      onLogin(mockUser);
       onClose();
-      alert(`Bienvenido de nuevo, ${formData.email.split('@')[0]}!`);
-    }, 1500);
+    }, 1000);
   };
 
   return (
@@ -93,7 +102,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitchToSign
             <p className="text-gray-500 text-sm mt-1">Ingresa tus credenciales para acceder a tu cuenta.</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={(e) => handleLogin(e, 'client')} className="space-y-5">
             {/* Email */}
             <div className="space-y-1">
               <label className="text-xs font-semibold text-gray-700">Email</label>
@@ -150,24 +159,40 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitchToSign
               </label>
             </div>
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-primary hover:bg-primary-hover text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-primary/25 transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              {isLoading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  Iniciando...
-                </>
-              ) : (
-                <>
-                  <Icons.LogOut className="w-4 h-4 rotate-180" /> {/* Simulating Enter icon */}
-                  Ingresar
-                </>
-              )}
-            </button>
+            {/* Submit Buttons for Demo */}
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="submit"
+                onClick={(e) => handleLogin(e, 'client')}
+                disabled={isLoading}
+                className="w-full bg-primary hover:bg-primary-hover text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-primary/25 transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex flex-col items-center justify-center gap-0.5"
+              >
+                {isLoading ? (
+                   <span className="text-xs">Cargando...</span>
+                ) : (
+                  <>
+                    <span>Entrar como Cliente</span>
+                    <span className="text-[10px] opacity-80 font-normal">(Busco espacio)</span>
+                  </>
+                )}
+              </button>
+              
+              <button
+                type="button"
+                onClick={(e) => handleLogin(e, 'owner')}
+                disabled={isLoading}
+                className="w-full bg-gray-800 hover:bg-gray-900 text-white py-3 rounded-xl font-bold text-sm shadow-lg transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex flex-col items-center justify-center gap-0.5"
+              >
+                 {isLoading ? (
+                   <span className="text-xs">Cargando...</span>
+                ) : (
+                  <>
+                    <span>Entrar como Dueño</span>
+                    <span className="text-[10px] opacity-80 font-normal">(Tengo espacio)</span>
+                  </>
+                )}
+              </button>
+            </div>
           </form>
 
           {/* Divider */}

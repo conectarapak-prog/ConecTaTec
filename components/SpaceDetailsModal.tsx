@@ -230,8 +230,42 @@ const SpaceDetailsModal: React.FC<SpaceDetailsModalProps> = ({ space, onClose })
             </div>
           )}
 
+          {/* Access Info Cards */}
+          {space.accessInfo && (
+            <div className="grid grid-cols-3 gap-3 md:gap-4 mb-6">
+               <div className="bg-white border border-gray-200 rounded-2xl p-3 md:p-4 flex flex-col items-center justify-center text-center h-28 md:h-32 shadow-sm">
+                  <Icons.ArrowUp className="w-6 h-6 md:w-8 md:h-8 text-gray-700 mb-2" />
+                  <span className="text-xs md:text-sm font-medium text-gray-900 leading-tight">
+                    {space.accessInfo.floorLevel} <br/><span className="text-gray-500 font-normal">sobre el suelo</span>
+                  </span>
+               </div>
+               <div className="bg-white border border-gray-200 rounded-2xl p-3 md:p-4 flex flex-col items-center justify-center text-center h-28 md:h-32 shadow-sm">
+                  <Icons.Car className="w-6 h-6 md:w-8 md:h-8 text-gray-700 mb-2" />
+                  <span className="text-xs md:text-sm font-medium text-gray-900 leading-tight">
+                    Estacionamiento <br/>
+                    <span className="text-gray-500 font-normal">
+                      {space.accessInfo.parkingSlots > 0 ? `para ${space.accessInfo.parkingSlots} autos` : 'no disponible'}
+                    </span>
+                  </span>
+               </div>
+               <div className="bg-white border border-gray-200 rounded-2xl p-3 md:p-4 flex flex-col items-center justify-center text-center h-28 md:h-32 shadow-sm relative overflow-hidden">
+                  <div className="relative mb-2">
+                     <Icons.ChevronsUpDown className="w-6 h-6 md:w-8 md:h-8 text-gray-700" />
+                     {!space.accessInfo.hasElevator && (
+                       <div className="absolute -top-1 -right-1 bg-white rounded-full">
+                          <Icons.Ban className="w-4 h-4 text-red-500" />
+                       </div>
+                     )}
+                  </div>
+                  <span className="text-xs md:text-sm font-medium text-gray-900 leading-tight">
+                     {space.accessInfo.hasElevator ? 'Con Ascensor' : 'Sin Ascensor'}
+                  </span>
+               </div>
+            </div>
+          )}
+
           {/* Description */}
-          <div className="mb-8 mt-4">
+          <div className="mb-8 mt-2">
             <h3 className="text-lg font-bold text-gray-900 mb-3">Sobre este espacio</h3>
             <p className="text-gray-600 leading-relaxed text-sm md:text-base">
               {space.description || "Un espacio versátil diseñado para crear momentos inolvidables. Cuenta con iluminación natural, excelente acústica y todas las comodidades necesarias para tu evento, desde reuniones corporativas hasta grandes celebraciones."}

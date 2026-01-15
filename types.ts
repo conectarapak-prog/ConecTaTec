@@ -9,6 +9,13 @@ export enum View {
   ANALYTICS = 'ANALYTICS',
 }
 
+export interface User {
+  name: string;
+  email: string;
+  role: 'client' | 'owner';
+  avatar?: string;
+}
+
 export interface RatingMetric {
   category: string;
   score: number; // 0-5
@@ -32,6 +39,12 @@ export interface Space {
   amenities?: string[]; // e.g., 'wifi', 'parking', 'ac'
   reviewsCount?: number;
   ratingBreakdown?: RatingMetric[];
+  // Logistics & Accessibility
+  accessInfo?: {
+    floorLevel: string; // e.g., "1er piso", "Planta baja"
+    parkingSlots: number;
+    hasElevator: boolean;
+  };
 }
 
 export interface ChatMessage {

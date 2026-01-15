@@ -4,10 +4,12 @@ import HomeView from './components/HomeView';
 import AIChatView from './components/AIChatView';
 import InteractiveMap from './components/InteractiveMap';
 import SettingsView from './components/SettingsView';
-import SpaceDetailsModal from './components/SpaceDetailsModal'; // Import new modal
-import SignUpModal from './components/SignUpModal'; // Import SignUp modal
-import LoginModal from './components/LoginModal'; // Import Login modal
-import { View, Space } from './types';
+import SpaceDetailsModal from './components/SpaceDetailsModal';
+import SignUpModal from './components/SignUpModal';
+import LoginModal from './components/LoginModal';
+import ClientDashboard from './components/ClientDashboard'; // Import Client Dashboard
+import OwnerDashboard from './components/OwnerDashboard'; // Import Owner Dashboard
+import { View, Space, User } from './types';
 import { Icons } from './components/Icons';
 
 // Mock Data for Spaces (Enhanced)
@@ -36,7 +38,12 @@ const spacesData: Space[] = [
       { category: 'Servicio', score: 4.9 },
       { category: 'Ubicación', score: 5.0 },
       { category: 'Limpieza', score: 4.7 }
-    ]
+    ],
+    accessInfo: {
+      floorLevel: '1er piso',
+      parkingSlots: 50,
+      hasElevator: true
+    }
   },
   {
     id: '2',
@@ -62,7 +69,12 @@ const spacesData: Space[] = [
       { category: 'Vibe', score: 5.0 },
       { category: 'Bebidas', score: 4.8 },
       { category: 'Accesibilidad', score: 4.2 }
-    ]
+    ],
+    accessInfo: {
+      floorLevel: '2do piso',
+      parkingSlots: 1,
+      hasElevator: false
+    }
   },
   {
     id: '3',
@@ -87,7 +99,12 @@ const spacesData: Space[] = [
       { category: 'Espacio', score: 4.9 },
       { category: 'Comodidad', score: 4.5 },
       { category: 'Precio/Calidad', score: 4.8 }
-    ]
+    ],
+    accessInfo: {
+      floorLevel: 'Planta baja',
+      parkingSlots: 200,
+      hasElevator: true // Technically irrelevant for ground floor, but logically accessible
+    }
   },
   {
     id: '4',
@@ -112,7 +129,12 @@ const spacesData: Space[] = [
       { category: 'Tecnología', score: 4.8 },
       { category: 'Acústica', score: 4.7 },
       { category: 'Catering', score: 4.0 }
-    ]
+    ],
+    accessInfo: {
+      floorLevel: '5to piso',
+      parkingSlots: 10,
+      hasElevator: true
+    }
   },
   {
     id: '5',
@@ -137,7 +159,12 @@ const spacesData: Space[] = [
       { category: 'Entorno', score: 5.0 },
       { category: 'Clima', score: 5.0 },
       { category: 'Atención', score: 4.9 }
-    ]
+    ],
+    accessInfo: {
+      floorLevel: 'Nivel Suelo',
+      parkingSlots: 100,
+      hasElevator: true
+    }
   }
 ];
 
@@ -146,14 +173,61 @@ const App: React.FC = () => {
   const [selectedSpace, setSelectedSpace] = useState<Space | null>(null);
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
 
   const handleSpaceSelect = (space: Space) => {
-    // Open the modal instead of switching views directly
     setSelectedSpace(space);
   };
 
   const closeModal = () => {
     setSelectedSpace(null);
+  };
+
+  const handleLoginSuccess = (loggedInUser: User) => {
+    setUser(loggedInUser);
+    setCurrentView(View.DASHBOARD); // Redirect to dashboard on login
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setCurrentView(View.HOME);
+  };
+
+  const renderContent = () => {
+    switch (currentView) {
+      case View.HOME:
+        return <HomeView spaces={spacesData} onSelectSpace={handleSpaceSelect} />;
+      case View.MAP:
+        return (
+          <div className="h-[calc(100vh-6rem)] animate-fade-in">
+             <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold text-gray-900">Mapa de Espacios</h2>
+                <span className="text-sm text-gray-500">Explora la ubicación de nuestros {spacesData.length} venues exclusivos</span>
+             </div>
+             <div className="h-full rounded-2xl overflow-hidden border border-gray-200 shadow-xl">
+               <InteractiveMap spaces={spacesData} />
+             </div>
+          </div>
+        );
+      case View.AI_ASSISTANT:
+        return (
+          <div className="max-w-4xl mx-auto py-8 animate-fade-in">
+             <div className="mb-6 text-center">
+               <h2 className="text-3xl font-bold text-gray-900 mb-2">Asistente Virtual Nova</h2>
+               <p className="text-gray-600">Déjanos ayudarte a planificar cada detalle de tu evento.</p>
+             </div>
+             <AIChatView />
+          </div>
+        );
+      case View.DASHBOARD:
+        if (!user) return <HomeView spaces={spacesData} onSelectSpace={handleSpaceSelect} />;
+        if (user.role === 'owner') {
+          return <OwnerDashboard user={user} spaces={spacesData} />;
+        }
+        return <ClientDashboard user={user} spaces={spacesData} onNavigate={() => setCurrentView(View.HOME)} />;
+      default:
+        return <HomeView spaces={spacesData} onSelectSpace={handleSpaceSelect} />;
+    }
   };
 
   return (
@@ -163,39 +237,12 @@ const App: React.FC = () => {
         setCurrentView={setCurrentView}
         onOpenSignUp={() => setIsSignUpOpen(true)}
         onOpenLogin={() => setIsLoginOpen(true)}
+        user={user}
+        onLogout={handleLogout}
       />
       
       <main className="container mx-auto px-4 md:px-6 py-6 min-h-screen">
-        {(() => {
-          switch (currentView) {
-            case View.HOME:
-              return <HomeView spaces={spacesData} onSelectSpace={handleSpaceSelect} />;
-            case View.MAP:
-              return (
-                <div className="h-[calc(100vh-6rem)] animate-fade-in">
-                   <div className="flex justify-between items-center mb-4">
-                      <h2 className="text-2xl font-bold text-gray-900">Mapa de Espacios</h2>
-                      <span className="text-sm text-gray-500">Explora la ubicación de nuestros {spacesData.length} venues exclusivos</span>
-                   </div>
-                   <div className="h-full rounded-2xl overflow-hidden border border-gray-200 shadow-xl">
-                     <InteractiveMap spaces={spacesData} />
-                   </div>
-                </div>
-              );
-            case View.AI_ASSISTANT:
-              return (
-                <div className="max-w-4xl mx-auto py-8 animate-fade-in">
-                   <div className="mb-6 text-center">
-                     <h2 className="text-3xl font-bold text-gray-900 mb-2">Asistente Virtual Nova</h2>
-                     <p className="text-gray-600">Déjanos ayudarte a planificar cada detalle de tu evento.</p>
-                   </div>
-                   <AIChatView />
-                </div>
-              );
-            default:
-              return <HomeView spaces={spacesData} onSelectSpace={handleSpaceSelect} />;
-          }
-        })()}
+        {renderContent()}
       </main>
 
       {/* Detail Modal Overlay */}
@@ -224,6 +271,7 @@ const App: React.FC = () => {
           setIsLoginOpen(false);
           setIsSignUpOpen(true);
         }}
+        onLogin={handleLoginSuccess}
       />
 
       {/* Simple Footer */}
