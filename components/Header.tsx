@@ -5,10 +5,11 @@ import { View } from '../types';
 interface HeaderProps {
   currentView: View;
   setCurrentView: (view: View) => void;
-  onOpenSignUp?: () => void; // Optional callback for opening the signup modal
+  onOpenSignUp?: () => void;
+  onOpenLogin?: () => void; // New prop for login modal
 }
 
-const Header: React.FC<HeaderProps> = ({ currentView, setCurrentView, onOpenSignUp }) => {
+const Header: React.FC<HeaderProps> = ({ currentView, setCurrentView, onOpenSignUp, onOpenLogin }) => {
   return (
     <header className="h-20 bg-white border-b border-gray-100 sticky top-0 z-50 px-6 flex items-center justify-between shadow-sm">
       <div className="flex items-center gap-8">
@@ -59,7 +60,10 @@ const Header: React.FC<HeaderProps> = ({ currentView, setCurrentView, onOpenSign
 
         <div className="h-6 w-px bg-gray-200 mx-2 hidden sm:block"></div>
 
-        <button className="hidden sm:block text-sm font-medium text-gray-600 hover:text-primary px-3 py-2">
+        <button 
+          onClick={onOpenLogin}
+          className="hidden sm:block text-sm font-medium text-gray-600 hover:text-primary px-3 py-2"
+        >
           Iniciar Sesión
         </button>
         <button 

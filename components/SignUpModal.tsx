@@ -4,9 +4,10 @@ import { Icons } from './Icons';
 interface SignUpModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSwitchToLogin: () => void; // New prop for switching
 }
 
-const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose }) => {
+const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSwitchToLogin }) => {
   const [userType, setUserType] = useState<'client' | 'partner'>('client');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -275,7 +276,7 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose }) => {
                 </button>
 
                 <p className="text-center text-xs text-gray-500 mt-4">
-                  ¿Ya tienes cuenta? <button type="button" className="text-primary font-bold hover:underline">Iniciar Sesión</button>
+                  ¿Ya tienes cuenta? <button type="button" onClick={onSwitchToLogin} className="text-primary font-bold hover:underline">Iniciar Sesión</button>
                 </p>
               </form>
             </>

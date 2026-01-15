@@ -6,6 +6,7 @@ import InteractiveMap from './components/InteractiveMap';
 import SettingsView from './components/SettingsView';
 import SpaceDetailsModal from './components/SpaceDetailsModal'; // Import new modal
 import SignUpModal from './components/SignUpModal'; // Import SignUp modal
+import LoginModal from './components/LoginModal'; // Import Login modal
 import { View, Space } from './types';
 import { Icons } from './components/Icons';
 
@@ -144,6 +145,7 @@ const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>(View.HOME);
   const [selectedSpace, setSelectedSpace] = useState<Space | null>(null);
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
 
   const handleSpaceSelect = (space: Space) => {
     // Open the modal instead of switching views directly
@@ -154,47 +156,46 @@ const App: React.FC = () => {
     setSelectedSpace(null);
   };
 
-  const renderContent = () => {
-    switch (currentView) {
-      case View.HOME:
-        return <HomeView spaces={spacesData} onSelectSpace={handleSpaceSelect} />;
-      case View.MAP:
-        return (
-          <div className="h-[calc(100vh-6rem)] animate-fade-in">
-             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-gray-900">Mapa de Espacios</h2>
-                <span className="text-sm text-gray-500">Explora la ubicación de nuestros {spacesData.length} venues exclusivos</span>
-             </div>
-             <div className="h-full rounded-2xl overflow-hidden border border-gray-200 shadow-xl">
-               <InteractiveMap spaces={spacesData} />
-             </div>
-          </div>
-        );
-      case View.AI_ASSISTANT:
-        return (
-          <div className="max-w-4xl mx-auto py-8 animate-fade-in">
-             <div className="mb-6 text-center">
-               <h2 className="text-3xl font-bold text-gray-900 mb-2">Asistente Virtual Nova</h2>
-               <p className="text-gray-600">Déjanos ayudarte a planificar cada detalle de tu evento.</p>
-             </div>
-             <AIChatView />
-          </div>
-        );
-      default:
-        return <HomeView spaces={spacesData} onSelectSpace={handleSpaceSelect} />;
-    }
-  };
-
   return (
     <div className="min-h-screen bg-white text-gray-900 selection:bg-primary/20 selection:text-primary relative">
       <Header 
         currentView={currentView}
         setCurrentView={setCurrentView}
         onOpenSignUp={() => setIsSignUpOpen(true)}
+        onOpenLogin={() => setIsLoginOpen(true)}
       />
       
       <main className="container mx-auto px-4 md:px-6 py-6 min-h-screen">
-        {renderContent()}
+        {(() => {
+          switch (currentView) {
+            case View.HOME:
+              return <HomeView spaces={spacesData} onSelectSpace={handleSpaceSelect} />;
+            case View.MAP:
+              return (
+                <div className="h-[calc(100vh-6rem)] animate-fade-in">
+                   <div className="flex justify-between items-center mb-4">
+                      <h2 className="text-2xl font-bold text-gray-900">Mapa de Espacios</h2>
+                      <span className="text-sm text-gray-500">Explora la ubicación de nuestros {spacesData.length} venues exclusivos</span>
+                   </div>
+                   <div className="h-full rounded-2xl overflow-hidden border border-gray-200 shadow-xl">
+                     <InteractiveMap spaces={spacesData} />
+                   </div>
+                </div>
+              );
+            case View.AI_ASSISTANT:
+              return (
+                <div className="max-w-4xl mx-auto py-8 animate-fade-in">
+                   <div className="mb-6 text-center">
+                     <h2 className="text-3xl font-bold text-gray-900 mb-2">Asistente Virtual Nova</h2>
+                     <p className="text-gray-600">Déjanos ayudarte a planificar cada detalle de tu evento.</p>
+                   </div>
+                   <AIChatView />
+                </div>
+              );
+            default:
+              return <HomeView spaces={spacesData} onSelectSpace={handleSpaceSelect} />;
+          }
+        })()}
       </main>
 
       {/* Detail Modal Overlay */}
@@ -209,6 +210,20 @@ const App: React.FC = () => {
       <SignUpModal 
         isOpen={isSignUpOpen}
         onClose={() => setIsSignUpOpen(false)}
+        onSwitchToLogin={() => {
+          setIsSignUpOpen(false);
+          setIsLoginOpen(true);
+        }}
+      />
+
+      {/* Login Modal Overlay */}
+      <LoginModal 
+        isOpen={isLoginOpen}
+        onClose={() => setIsLoginOpen(false)}
+        onSwitchToSignUp={() => {
+          setIsLoginOpen(false);
+          setIsSignUpOpen(true);
+        }}
       />
 
       {/* Simple Footer */}
