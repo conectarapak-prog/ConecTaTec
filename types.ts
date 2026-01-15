@@ -7,6 +7,7 @@ export enum View {
   SETTINGS = 'SETTINGS',
   DASHBOARD = 'DASHBOARD',
   ANALYTICS = 'ANALYTICS',
+  CHECKOUT = 'CHECKOUT', // New View
 }
 
 export interface User {
@@ -14,6 +15,7 @@ export interface User {
   email: string;
   role: 'client' | 'owner';
   avatar?: string;
+  id?: string; // Added optional ID for DB linking
 }
 
 export interface RatingMetric {
@@ -45,6 +47,16 @@ export interface Space {
     parkingSlots: number;
     hasElevator: boolean;
   };
+}
+
+export interface Booking {
+  spaceId: string;
+  spaceName: string;
+  date: string;
+  startTime: string;
+  duration: number;
+  guests: number;
+  totalPrice: number;
 }
 
 export interface ChatMessage {

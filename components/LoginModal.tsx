@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Icons } from './Icons';
 import { User } from '../types';
+import { supabase } from '../services/supabaseClient';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface LoginModalProps {
 const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitchToSignUp, onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   
   const [formData, setFormData] = useState({
     email: '',
@@ -21,24 +23,43 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitchToSign
 
   if (!isOpen) return null;
 
-  const handleLogin = (e: React.FormEvent, role: 'client' | 'owner' = 'client') => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMessage('');
 
-    // Simulate API call
-    setTimeout(() => {
+    // Clean input
+    const cleanedEmail = formData.email.trim();
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: cleanedEmail,
+        password: formData.password,
+      });
+
+      if (error) throw error;
+
+      if (data.user) {
+        // Prepare local user object for callback (though App.tsx listener handles the state)
+        // This callback is useful if the parent needs to do immediate UI cleanup
+        const userMetadata = data.user.user_metadata;
+        const localUser: User = {
+          name: userMetadata.name || 'Usuario',
+          email: data.user.email || '',
+          role: (userMetadata.role as 'client' | 'owner') || 'client',
+          avatar: undefined
+        };
+        
+        onLogin(localUser);
+        onClose();
+      }
+
+    } catch (error: any) {
+      console.error('Login error', error);
+      setErrorMessage(error.message || 'Error al iniciar sesión. Verifique sus credenciales.');
+    } finally {
       setIsLoading(false);
-      
-      const mockUser: User = {
-        name: role === 'client' ? 'Carlos Cliente' : 'Ana Dueña',
-        email: formData.email || (role === 'client' ? 'cliente@demo.com' : 'dueno@demo.com'),
-        role: role,
-        avatar: undefined
-      };
-      
-      onLogin(mockUser);
-      onClose();
-    }, 1000);
+    }
   };
 
   return (
@@ -101,8 +122,15 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitchToSign
             <h2 className="text-2xl font-bold text-gray-900">Iniciar Sesión</h2>
             <p className="text-gray-500 text-sm mt-1">Ingresa tus credenciales para acceder a tu cuenta.</p>
           </div>
+          
+          {errorMessage && (
+            <div className="mb-4 p-3 rounded-lg bg-red-50 text-red-600 text-sm flex items-center gap-2">
+               <Icons.AlertTriangle className="w-4 h-4" />
+               {errorMessage}
+            </div>
+          )}
 
-          <form onSubmit={(e) => handleLogin(e, 'client')} className="space-y-5">
+          <form onSubmit={handleLogin} className="space-y-5">
             {/* Email */}
             <div className="space-y-1">
               <label className="text-xs font-semibold text-gray-700">Email</label>
@@ -159,40 +187,18 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitchToSign
               </label>
             </div>
 
-            {/* Submit Buttons for Demo */}
-            <div className="grid grid-cols-2 gap-3">
-              <button
+            {/* Submit Button */}
+            <button
                 type="submit"
-                onClick={(e) => handleLogin(e, 'client')}
                 disabled={isLoading}
                 className="w-full bg-primary hover:bg-primary-hover text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-primary/25 transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex flex-col items-center justify-center gap-0.5"
-              >
+            >
                 {isLoading ? (
-                   <span className="text-xs">Cargando...</span>
+                    <span className="text-xs">Cargando...</span>
                 ) : (
-                  <>
-                    <span>Entrar como Cliente</span>
-                    <span className="text-[10px] opacity-80 font-normal">(Busco espacio)</span>
-                  </>
+                    <span>Entrar</span>
                 )}
-              </button>
-              
-              <button
-                type="button"
-                onClick={(e) => handleLogin(e, 'owner')}
-                disabled={isLoading}
-                className="w-full bg-gray-800 hover:bg-gray-900 text-white py-3 rounded-xl font-bold text-sm shadow-lg transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex flex-col items-center justify-center gap-0.5"
-              >
-                 {isLoading ? (
-                   <span className="text-xs">Cargando...</span>
-                ) : (
-                  <>
-                    <span>Entrar como Dueño</span>
-                    <span className="text-[10px] opacity-80 font-normal">(Tengo espacio)</span>
-                  </>
-                )}
-              </button>
-            </div>
+            </button>
           </form>
 
           {/* Divider */}

@@ -1,15 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Icons } from './Icons';
 import { sendMessageToGemini } from '../services/geminiService';
-import { ChatMessage } from '../types';
+import { ChatMessage, User } from '../types'; // Import User type
 import { jsPDF } from "jspdf";
+import { logAIInteraction } from '../services/supabaseClient'; // Import logging service
 
-const AIChatView: React.FC = () => {
+interface AIChatViewProps {
+  user?: User | null;
+}
+
+const AIChatView: React.FC<AIChatViewProps> = ({ user }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'welcome',
       role: 'model',
-      text: '¡Hola! Soy ConecTATE, tu Event Planner personal. 🌟\n\nEstoy aquí para ayudarte a planificar cada detalle: desde el cronograma minuto a minuto, sugerencias de catering, hasta la disposición perfecta de las mesas.\n\n¿Qué tipo de evento estamos organizando hoy?',
+      text: `¡Hola ${user?.name ? user.name : ''}! Soy ConecTATE, tu Event Planner personal. 🌟\n\nEstoy aquí para ayudarte a planificar cada detalle: desde el cronograma minuto a minuto, sugerencias de catering, hasta la disposición perfecta de las mesas.\n\n¿Qué tipo de evento estamos organizando hoy?`,
       timestamp: new Date()
     }
   ]);
@@ -59,6 +64,17 @@ const AIChatView: React.FC = () => {
         timestamp: new Date()
       };
       setMessages(prev => [...prev, botMsg]);
+
+      // --- SUPABASE INTEGRATION: Log the interaction for business intelligence ---
+      // We log asynchronously so we don't block the UI
+      logAIInteraction(
+        undefined, // We don't have UUID in local User type easily accessible without context, defaulting to email/null handling in service
+        user?.email,
+        textToSend,
+        responseText
+      );
+      // -------------------------------------------------------------------------
+
     } catch (error) {
       const errorMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),
@@ -94,9 +110,10 @@ const AIChatView: React.FC = () => {
     doc.setFontSize(10);
     doc.setTextColor(100);
     doc.text(`Generado: ${new Date().toLocaleString()}`, 10, 22);
-    doc.line(10, 25, 200, 25);
+    doc.text(`Cliente: ${user?.name || 'Invitado'}`, 10, 27);
+    doc.line(10, 30, 200, 30);
     
-    y = 35;
+    y = 40;
 
     messages.forEach((msg) => {
       // Check for page break
@@ -155,7 +172,7 @@ const AIChatView: React.FC = () => {
       {emailSuccess && (
         <div className="absolute top-20 left-1/2 -translate-x-1/2 z-50 bg-green-500 text-white px-4 py-2 rounded-full shadow-lg flex items-center animate-fade-in">
           <Icons.CheckCircle className="w-4 h-4 mr-2" />
-          <span className="text-sm font-medium">Planificación enviada a tu correo</span>
+          <span className="text-sm font-medium">Planificación enviada a {user?.email || 'tu correo'}</span>
         </div>
       )}
 

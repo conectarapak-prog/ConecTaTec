@@ -5,6 +5,7 @@ import { Icons } from './Icons';
 interface SpaceDetailsModalProps {
   space: Space;
   onClose: () => void;
+  onQuote: (space: Space, hours: number) => void; // New prop to trigger quote/checkout
 }
 
 interface Point {
@@ -19,7 +20,7 @@ interface Measurement {
   distance: string;
 }
 
-const SpaceDetailsModal: React.FC<SpaceDetailsModalProps> = ({ space, onClose }) => {
+const SpaceDetailsModal: React.FC<SpaceDetailsModalProps> = ({ space, onClose, onQuote }) => {
   const [isPricingOpen, setIsPricingOpen] = useState(false);
   const [selectedHours, setSelectedHours] = useState(2); // Default 2 hours
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -407,7 +408,10 @@ const SpaceDetailsModal: React.FC<SpaceDetailsModalProps> = ({ space, onClose })
                     <p className="text-[10px] text-gray-500 mb-0.5">Total Estimado</p>
                     <p className="text-xl font-extrabold text-gray-900">${totalPrice.toLocaleString()}</p>
                   </div>
-                  <button className="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg text-xs font-bold transition-transform active:scale-95 shadow-lg shadow-primary/20">
+                  <button 
+                    onClick={() => onQuote(space, selectedHours)}
+                    className="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg text-xs font-bold transition-transform active:scale-95 shadow-lg shadow-primary/20"
+                  >
                     Reservar
                   </button>
                </div>
@@ -517,7 +521,10 @@ const SpaceDetailsModal: React.FC<SpaceDetailsModalProps> = ({ space, onClose })
                </div>
 
                <div className="flex gap-2.5">
-                 <button className="flex-1 bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-lg font-bold text-xs transition-colors border border-white/10">
+                 <button 
+                    onClick={() => onQuote(space, selectedHours)}
+                    className="flex-1 bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-lg font-bold text-xs transition-colors border border-white/10"
+                 >
                    Cotizar Evento
                  </button>
                  <button className="px-3 bg-primary hover:bg-primary-hover text-white rounded-lg font-medium text-xs transition-colors flex items-center justify-center gap-1.5 shadow-lg shadow-primary/20" title="Dejar Feedback">

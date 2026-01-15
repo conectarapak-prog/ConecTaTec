@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import HomeView from './components/HomeView';
 import AIChatView from './components/AIChatView';
@@ -9,8 +9,10 @@ import SignUpModal from './components/SignUpModal';
 import LoginModal from './components/LoginModal';
 import ClientDashboard from './components/ClientDashboard'; // Import Client Dashboard
 import OwnerDashboard from './components/OwnerDashboard'; // Import Owner Dashboard
+import CheckoutView from './components/CheckoutView'; // Import Checkout View
 import { View, Space, User } from './types';
 import { Icons } from './components/Icons';
+import { supabase } from './services/supabaseClient';
 
 // Mock Data for Spaces (Enhanced)
 const spacesData: Space[] = [
@@ -171,9 +173,46 @@ const spacesData: Space[] = [
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>(View.HOME);
   const [selectedSpace, setSelectedSpace] = useState<Space | null>(null);
+  const [checkoutSpace, setCheckoutSpace] = useState<{space: Space, hours: number} | null>(null);
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+
+  // Initialize Supabase Auth Listener
+  useEffect(() => {
+    // Check active session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        mapSupabaseUserToLocalUser(session.user);
+      }
+    });
+
+    // Listen for changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        mapSupabaseUserToLocalUser(session.user);
+        setIsLoginOpen(false);
+        setIsSignUpOpen(false);
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const mapSupabaseUserToLocalUser = (supabaseUser: any) => {
+    const role = supabaseUser.user_metadata?.role || 'client';
+    const name = supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || 'Usuario';
+    
+    setUser({
+      id: supabaseUser.id,
+      name: name,
+      email: supabaseUser.email || '',
+      role: role as 'client' | 'owner',
+      avatar: undefined
+    });
+  };
 
   const handleSpaceSelect = (space: Space) => {
     setSelectedSpace(space);
@@ -183,20 +222,40 @@ const App: React.FC = () => {
     setSelectedSpace(null);
   };
 
-  const handleLoginSuccess = (loggedInUser: User) => {
-    setUser(loggedInUser);
-    setCurrentView(View.DASHBOARD); // Redirect to dashboard on login
+  const handleQuote = (space: Space, hours: number) => {
+    if (!user) {
+      // If not logged in, prompt login
+      setIsLoginOpen(true);
+      // Optional: Save intention to navigate after login
+    } else {
+      setSelectedSpace(null); // Close modal
+      setCheckoutSpace({ space, hours });
+      setCurrentView(View.CHECKOUT);
+    }
   };
 
-  const handleLogout = () => {
+  const handleLoginSuccess = (loggedInUser: User) => {
+    // This is now largely handled by the onAuthStateChange listener, 
+    // but we can use this to force a view change if needed
+    setUser(loggedInUser);
+    
+    // If we were on home, go to dashboard usually, but check if we were trying to checkout
+    if (currentView === View.HOME) {
+       setCurrentView(View.DASHBOARD); 
+    }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
     setCurrentView(View.HOME);
+    setCheckoutSpace(null);
   };
 
   const renderContent = () => {
     switch (currentView) {
       case View.HOME:
-        return <HomeView spaces={spacesData} onSelectSpace={handleSpaceSelect} />;
+        return <HomeView spaces={spacesData} onSelectSpace={handleSpaceSelect} user={user} />;
       case View.MAP:
         return (
           <div className="h-[calc(100vh-6rem)] animate-fade-in">
@@ -216,17 +275,31 @@ const App: React.FC = () => {
                <h2 className="text-3xl font-bold text-gray-900 mb-2">ConecTATE</h2>
                <p className="text-gray-600">Déjanos ayudarte a planificar cada detalle de tu evento.</p>
              </div>
-             <AIChatView />
+             <AIChatView user={user} />
           </div>
         );
       case View.DASHBOARD:
-        if (!user) return <HomeView spaces={spacesData} onSelectSpace={handleSpaceSelect} />;
+        if (!user) return <HomeView spaces={spacesData} onSelectSpace={handleSpaceSelect} user={user} />;
         if (user.role === 'owner') {
           return <OwnerDashboard user={user} spaces={spacesData} />;
         }
         return <ClientDashboard user={user} spaces={spacesData} onNavigate={() => setCurrentView(View.HOME)} />;
+      case View.CHECKOUT:
+        if (!checkoutSpace || !user) return <HomeView spaces={spacesData} onSelectSpace={handleSpaceSelect} user={user} />;
+        return (
+          <CheckoutView 
+            space={checkoutSpace.space} 
+            user={user} 
+            onSuccess={() => setCurrentView(View.DASHBOARD)}
+            onCancel={() => {
+              setCurrentView(View.HOME);
+              setSelectedSpace(checkoutSpace.space); // Re-open details
+            }}
+            initialHours={checkoutSpace.hours}
+          />
+        );
       default:
-        return <HomeView spaces={spacesData} onSelectSpace={handleSpaceSelect} />;
+        return <HomeView spaces={spacesData} onSelectSpace={handleSpaceSelect} user={user} />;
     }
   };
 
@@ -250,6 +323,7 @@ const App: React.FC = () => {
         <SpaceDetailsModal 
           space={selectedSpace} 
           onClose={closeModal} 
+          onQuote={handleQuote}
         />
       )}
 

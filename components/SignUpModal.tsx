@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Icons } from './Icons';
+import { supabase } from '../services/supabaseClient';
 
 interface SignUpModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSwitchToLo
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   
   const [formData, setFormData] = useState({
     name: '',
@@ -24,13 +26,29 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSwitchToLo
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMessage('');
 
-    // Simulate API call and validation
-    setTimeout(() => {
-      setIsLoading(false);
+    // Clean input
+    const cleanedEmail = formData.email.trim();
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: cleanedEmail,
+        password: formData.password,
+        options: {
+          data: {
+            name: formData.name,
+            phone: formData.phone,
+            role: userType === 'partner' ? 'owner' : 'client'
+          }
+        }
+      });
+
+      if (error) throw error;
+
       setIsSuccess(true);
       
       // Close modal after success message
@@ -46,8 +64,14 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSwitchToLo
           terms: false,
           privacy: false
         });
-      }, 2000);
-    }, 1500);
+      }, 3000);
+
+    } catch (error: any) {
+      console.error('Sign up error:', error);
+      setErrorMessage(error.message || 'Error al registrarse. Intente nuevamente.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -114,7 +138,7 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSwitchToLo
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-2">¡Cuenta Creada!</h3>
               <p className="text-gray-500 mb-8 max-w-xs">
-                Te hemos enviado un correo de confirmación. Bienvenido a RinconIQQ.
+                Por favor verifica tu correo electrónico para confirmar tu cuenta y comenzar a usar RinconIQQ.
               </p>
             </div>
           ) : (
@@ -149,6 +173,13 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSwitchToLo
                   Soy Dueño
                 </button>
               </div>
+              
+              {errorMessage && (
+                <div className="mb-4 p-3 rounded-lg bg-red-50 text-red-600 text-sm flex items-center gap-2">
+                  <Icons.AlertTriangle className="w-4 h-4" />
+                  {errorMessage}
+                </div>
+              )}
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Name */}

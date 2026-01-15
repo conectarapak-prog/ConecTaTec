@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { Icons } from './Icons';
-import { Space } from '../types';
+import { Space, User } from '../types';
+import { logSearchEvent } from '../services/supabaseClient'; // Import logger
 
 interface HomeViewProps {
   spaces: Space[];
   onSelectSpace: (space: Space) => void;
+  user?: User | null; // Added user prop
 }
 
-const HomeView: React.FC<HomeViewProps> = ({ spaces, onSelectSpace }) => {
+const HomeView: React.FC<HomeViewProps> = ({ spaces, onSelectSpace, user }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Todos');
 
@@ -18,6 +20,13 @@ const HomeView: React.FC<HomeViewProps> = ({ spaces, onSelectSpace }) => {
     const matchesCategory = selectedCategory === 'Todos' || space.type.includes(selectedCategory.slice(0, -1)); // Simple matching logic
     return matchesSearch && matchesCategory;
   });
+
+  const handleSearch = () => {
+    if (searchTerm.trim()) {
+      // Log search for business intelligence
+      logSearchEvent(undefined, user?.email, searchTerm, selectedCategory);
+    }
+  };
 
   return (
     <div className="animate-fade-in pb-12">
@@ -52,9 +61,13 @@ const HomeView: React.FC<HomeViewProps> = ({ spaces, onSelectSpace }) => {
                   className="w-full h-12 pl-10 pr-4 rounded-lg bg-gray-50 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 />
               </div>
-              <button className="bg-primary hover:bg-primary-hover text-white px-8 h-12 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2">
+              <button 
+                onClick={handleSearch}
+                className="bg-primary hover:bg-primary-hover text-white px-8 h-12 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+              >
                 Buscar
               </button>
             </div>
