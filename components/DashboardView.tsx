@@ -1,34 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar } from 'recharts';
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar, Cell } from 'recharts';
 import { StatCard } from './StatCard';
 import { Icons } from './Icons';
 import { ChartDataPoint, Task } from '../types';
 
-// Data simulating Capital Raised vs Manufacturing Costs over time
-const capitalData: ChartDataPoint[] = [
-  { name: 'Ene', value: 120000, revenue: 45000 },
-  { name: 'Feb', value: 155000, revenue: 52000 },
-  { name: 'Mar', value: 280000, revenue: 140000 },
-  { name: 'Abr', value: 340000, revenue: 160000 },
-  { name: 'May', value: 490000, revenue: 210000 },
-  { name: 'Jun', value: 650000, revenue: 250000 },
-  { name: 'Jul', value: 890000, revenue: 380000 },
+// Updated: SaaS/Financial Growth Data
+const growthData: ChartDataPoint[] = [
+  { name: 'Mon', value: 4000, revenue: 2400 },
+  { name: 'Tue', value: 3000, revenue: 1398 },
+  { name: 'Wed', value: 2000, revenue: 9800 },
+  { name: 'Thu', value: 2780, revenue: 3908 },
+  { name: 'Fri', value: 1890, revenue: 4800 },
+  { name: 'Sat', value: 2390, revenue: 3800 },
+  { name: 'Sun', value: 3490, revenue: 4300 },
 ];
 
-// Data showing innovation by sector
-const sectorData = [
-  { name: 'Agroindustria', value: 45 },
-  { name: 'Textil', value: 32 },
-  { name: 'Tecnología', value: 28 },
-  { name: 'Artesanal', value: 15 },
-  { name: 'Automotriz', value: 10 },
+// Updated: User Demographics/Categories
+const analyticsData = [
+  { name: 'Organic', value: 400 },
+  { name: 'Social', value: 300 },
+  { name: 'Direct', value: 300 },
+  { name: 'Referral', value: 200 },
 ];
+
+const COLORS = ['#6366f1', '#8b5cf6', '#38bdf8', '#0ea5e9'];
 
 const DashboardView: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState('');
 
-  // Load tasks from local storage
   useEffect(() => {
     const savedTasks = localStorage.getItem('nova_tasks');
     if (savedTasks) {
@@ -38,16 +38,14 @@ const DashboardView: React.FC = () => {
         console.error('Error parsing tasks:', error);
       }
     } else {
-      // Initial sample tasks focusing on manufacturing and funding
       setTasks([
-        { id: '1', text: 'Validar prototipo v2 con planta', completed: false },
-        { id: '2', text: 'Contactar proveedores de acero', completed: true },
-        { id: '3', text: 'Preparar pitch para ronda semilla', completed: false },
+        { id: '1', text: 'Revisar informe mensual de Q3', completed: false },
+        { id: '2', text: 'Actualizar proyecciones financieras', completed: true },
+        { id: '3', text: 'Reunión con inversores principales', completed: false },
       ]);
     }
   }, []);
 
-  // Save tasks to local storage
   useEffect(() => {
     localStorage.setItem('nova_tasks', JSON.stringify(tasks));
   }, [tasks]);
@@ -77,200 +75,215 @@ const DashboardView: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Stats Grid - Focused on Capital & Manufacturing */}
+      {/* Stats Grid - High Tech / Fintech Look */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
-          title="Capital Levantado" 
-          value="$890,000" 
-          change={125.4} 
+          title="Ingresos Totales" 
+          value="$124,592" 
+          change={12.5} 
           icon={<Icons.Dollar className="w-5 h-5" />} 
         />
         <StatCard 
-          title="Inversores Activos" 
-          value="456" 
-          change={12.8} 
+          title="Usuarios Activos" 
+          value="8,540" 
+          change={2.4} 
           icon={<Icons.Users className="w-5 h-5" />} 
         />
         <StatCard 
-          title="Lotes en Producción" 
-          value="24" 
-          change={8.5} 
-          icon={<Icons.Factory className="w-5 h-5" />} 
+          title="Nuevos Leads" 
+          value="1,245" 
+          change={-5.2} 
+          icon={<Icons.TrendingUp className="w-5 h-5" />} 
         />
         <StatCard 
-          title="Proyectos Regionales" 
-          value="18" 
-          change={3.2} 
-          icon={<Icons.Globe className="w-5 h-5" />} 
+          title="Tasa de Conversión" 
+          value="3.2%" 
+          change={1.8} 
+          icon={<Icons.Activity className="w-5 h-5" />} 
         />
       </div>
 
       {/* Main Charts Area */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Chart */}
-        <div className="lg:col-span-2 glass-panel rounded-xl p-6">
+        {/* Revenue Chart */}
+        <div className="lg:col-span-2 glass-panel rounded-xl p-6 relative overflow-hidden">
+          {/* Subtle background element */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -z-10"></div>
+
           <div className="flex justify-between items-center mb-6">
             <div>
-               <h3 className="text-lg font-semibold text-white">Crecimiento de Fondos vs. Producción</h3>
-               <p className="text-xs text-gray-400">Comparativa de capital entrante y costo de manufactura</p>
+               <h3 className="text-lg font-semibold text-white">Rendimiento Financiero</h3>
+               <p className="text-xs text-gray-400">Análisis de ingresos vs. tráfico semanal</p>
             </div>
-            <select className="bg-surface border border-white/10 text-xs text-gray-300 rounded-lg px-2 py-1 outline-none">
-              <option>Año Actual</option>
-              <option>Histórico</option>
-            </select>
+            <div className="flex gap-2">
+               <button className="px-3 py-1 text-xs rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 transition-colors text-white">Semana</button>
+               <button className="px-3 py-1 text-xs rounded-lg text-gray-400 hover:text-white transition-colors">Mes</button>
+            </div>
           </div>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={capitalData}>
+              <AreaChart data={growthData}>
                 <defs>
                   <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4}/>
                     <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
                   </linearGradient>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#38bdf8" stopOpacity={0.3}/>
+                    <stop offset="5%" stopColor="#38bdf8" stopOpacity={0.4}/>
                     <stop offset="95%" stopColor="#38bdf8" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-                <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value/1000}k`} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} opacity={0.3} />
+                <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} dy={10} />
+                <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
                 <Tooltip 
-                  formatter={(value) => [`$${value}`, '']}
-                  contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', borderRadius: '8px', color: '#fff' }}
-                  itemStyle={{ color: '#fff' }}
-                  labelStyle={{ color: '#94a3b8' }}
+                  contentStyle={{ backgroundColor: 'rgba(30, 41, 59, 0.9)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}
+                  itemStyle={{ color: '#fff', fontSize: '12px' }}
+                  labelStyle={{ color: '#94a3b8', marginBottom: '4px' }}
+                  cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 }}
                 />
-                <Area name="Capital Levantado" type="monotone" dataKey="value" stroke="#6366f1" strokeWidth={2} fillOpacity={1} fill="url(#colorValue)" />
-                <Area name="Costo Producción" type="monotone" dataKey="revenue" stroke="#38bdf8" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" />
+                <Area type="monotone" dataKey="value" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
+                <Area type="monotone" dataKey="revenue" stroke="#38bdf8" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Secondary Chart/Widget */}
-        <div className="glass-panel rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-white mb-2">Marca Regional</h3>
-          <p className="text-xs text-gray-400 mb-6">Inversión por Sector Productivo</p>
-          <div className="h-[200px] w-full mb-4">
+        {/* Traffic Sources Widget */}
+        <div className="glass-panel rounded-xl p-6 flex flex-col">
+          <h3 className="text-lg font-semibold text-white mb-1">Fuentes de Tráfico</h3>
+          <p className="text-xs text-gray-400 mb-6">Distribución de visitas por canal</p>
+          <div className="h-[200px] w-full mb-auto">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={sectorData} layout="vertical">
-                 <XAxis type="number" hide />
-                 <YAxis dataKey="name" type="category" width={90} tick={{fill: '#94a3b8', fontSize: 11}} axisLine={false} tickLine={false}/>
-                 <Tooltip cursor={{fill: 'transparent'}} contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#fff' }} />
-                <Bar dataKey="value" fill="#8b5cf6" radius={[0, 4, 4, 0]} barSize={20} />
+              <BarChart data={analyticsData}>
+                 <XAxis dataKey="name" stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
+                 <Tooltip 
+                    cursor={{fill: 'rgba(255,255,255,0.05)'}} 
+                    contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#fff', borderRadius: '8px' }} 
+                 />
+                <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                  {analyticsData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <div className="p-3 bg-white/5 rounded-lg border border-white/5">
-             <div className="flex items-center justify-between text-sm mb-1">
-                <span className="text-emerald-400 font-medium">Líder: Agroindustria</span>
-                <span className="text-white">45%</span>
+          
+          <div className="mt-4 space-y-3">
+             <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 text-gray-300">
+                   <div className="w-2 h-2 rounded-full bg-primary"></div>
+                   <span>Orgánico</span>
+                </div>
+                <span className="font-semibold text-white">40%</span>
              </div>
-             <p className="text-xs text-gray-500">El sector de empaquetado sostenible está impulsando la región.</p>
+             <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 text-gray-300">
+                   <div className="w-2 h-2 rounded-full bg-secondary"></div>
+                   <span>Redes Sociales</span>
+                </div>
+                <span className="font-semibold text-white">30%</span>
+             </div>
           </div>
         </div>
       </div>
 
-      {/* Bottom Row: Investments & Manufacturing Tasks */}
+      {/* Bottom Row: Transactions & Tasks */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent Investments Table */}
+        {/* Recent Transactions Table */}
         <div className="lg:col-span-2 glass-panel rounded-xl overflow-hidden flex flex-col">
-          <div className="p-6 border-b border-white/10 flex justify-between items-center">
-            <h3 className="text-lg font-semibold text-white">Últimos Patrocinios</h3>
-            <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded">Tiempo Real</span>
+          <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/5">
+            <h3 className="text-lg font-semibold text-white">Actividad Reciente</h3>
+            <button className="text-xs text-primary hover:text-primary-300 transition-colors">Ver todo</button>
           </div>
           <div className="overflow-x-auto flex-1">
             <table className="w-full text-sm text-left">
-              <thead className="text-xs text-gray-400 uppercase bg-white/5">
+              <thead className="text-xs text-gray-400 uppercase bg-black/20">
                 <tr>
-                  <th className="px-6 py-3">Inversor</th>
-                  <th className="px-6 py-3">Proyecto</th>
-                  <th className="px-6 py-3">Fecha</th>
-                  <th className="px-6 py-3">Monto</th>
-                  <th className="px-6 py-3">Recompensa</th>
+                  <th className="px-6 py-4 font-medium">Usuario</th>
+                  <th className="px-6 py-4 font-medium">Estado</th>
+                  <th className="px-6 py-4 font-medium">Fecha</th>
+                  <th className="px-6 py-4 font-medium text-right">Monto</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                <tr className="hover:bg-white/5 transition-colors">
-                  <td className="px-6 py-4 font-medium text-white flex items-center gap-2">
-                     <div className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs">AG</div>
-                     Ana García
-                  </td>
-                  <td className="px-6 py-4 text-gray-300">EcoTextiles Mx</td>
-                  <td className="px-6 py-4 text-gray-400">Hoy, 14:30</td>
-                  <td className="px-6 py-4 text-emerald-400 font-medium">$5,000</td>
-                  <td className="px-6 py-4"><span className="px-2 py-1 rounded-full text-xs font-medium bg-white/10 text-gray-300">Lote Temprano</span></td>
-                </tr>
-                <tr className="hover:bg-white/5 transition-colors">
-                  <td className="px-6 py-4 font-medium text-white flex items-center gap-2">
-                     <div className="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center text-xs">CR</div>
-                     Carlos Ruiz
-                  </td>
-                  <td className="px-6 py-4 text-gray-300">Robótica Agrícola</td>
-                  <td className="px-6 py-4 text-gray-400">Ayer, 09:15</td>
-                  <td className="px-6 py-4 text-emerald-400 font-medium">$25,000</td>
-                  <td className="px-6 py-4"><span className="px-2 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">Acciones</span></td>
-                </tr>
-                <tr className="hover:bg-white/5 transition-colors">
-                  <td className="px-6 py-4 font-medium text-white flex items-center gap-2">
-                     <div className="w-6 h-6 rounded-full bg-pink-500/20 text-pink-400 flex items-center justify-center text-xs">ML</div>
-                     Maria Lopez
-                  </td>
-                  <td className="px-6 py-4 text-gray-300">Cerámica Moderna</td>
-                  <td className="px-6 py-4 text-gray-400">23 Oct</td>
-                  <td className="px-6 py-4 text-emerald-400 font-medium">$1,200</td>
-                  <td className="px-6 py-4"><span className="px-2 py-1 rounded-full text-xs font-medium bg-white/10 text-gray-300">Producto</span></td>
-                </tr>
+                {[
+                   { name: 'Spotify Sub', status: 'Completado', date: 'Hoy, 12:42', amount: '$14.99', img: 'S' },
+                   { name: 'Adobe Creative', status: 'Procesando', date: 'Ayer, 09:11', amount: '$54.00', img: 'A' },
+                   { name: 'AWS Cloud', status: 'Completado', date: '23 Oct', amount: '$120.50', img: 'C' }
+                ].map((item, i) => (
+                  <tr key={i} className="hover:bg-white/5 transition-colors group">
+                    <td className="px-6 py-4 font-medium text-white flex items-center gap-3">
+                       <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white group-hover:bg-primary group-hover:text-white transition-colors">
+                          {item.img}
+                       </div>
+                       {item.name}
+                    </td>
+                    <td className="px-6 py-4">
+                       <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${
+                          item.status === 'Completado' 
+                             ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                             : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                       }`}>
+                          {item.status}
+                       </span>
+                    </td>
+                    <td className="px-6 py-4 text-gray-400">{item.date}</td>
+                    <td className="px-6 py-4 text-white font-medium text-right">{item.amount}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
         </div>
 
-        {/* Industrial To-Do List */}
+        {/* Quick Tasks */}
         <div className="glass-panel rounded-xl p-6 flex flex-col h-[400px] lg:h-auto">
-          <div className="flex items-center gap-2 mb-4">
-             <div className="p-1.5 bg-accent/10 rounded-lg">
-                <Icons.Hammer className="w-4 h-4 text-accent" />
+          <div className="flex items-center justify-between mb-4">
+             <h3 className="text-lg font-semibold text-white">Agenda</h3>
+             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                <Icons.CheckCircle className="w-4 h-4" />
              </div>
-             <h3 className="text-lg font-semibold text-white">Gestión de Producción</h3>
           </div>
           
-          <div className="flex gap-2 mb-4">
+          <div className="flex gap-2 mb-6">
             <input
               type="text"
               value={newTask}
               onChange={(e) => setNewTask(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Tarea de manufactura..."
-              className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary/50 transition-colors placeholder-gray-500"
+              placeholder="Añadir tarea..."
+              className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary/50 transition-colors placeholder-gray-500"
             />
             <button
               onClick={addTask}
-              className="bg-primary hover:bg-primary/90 text-white p-2 rounded-lg transition-colors flex items-center justify-center"
+              className="bg-primary hover:bg-primary/90 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center shadow-lg shadow-primary/20"
             >
               <Icons.Plus className="w-5 h-5" />
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto space-y-3 pr-1 custom-scrollbar">
             {tasks.length === 0 && (
               <div className="h-full flex flex-col items-center justify-center text-gray-500 space-y-2 opacity-50">
-                <Icons.CheckCircle className="w-8 h-8" />
-                <p className="text-sm">Producción al día</p>
+                <Icons.CheckCircle className="w-10 h-10" />
+                <p className="text-sm">¡Todo listo por hoy!</p>
               </div>
             )}
             {tasks.map(task => (
               <div 
                 key={task.id} 
-                className="group flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-all border border-transparent hover:border-white/10"
+                className={`group flex items-center justify-between p-3.5 rounded-xl transition-all border ${
+                   task.completed ? 'bg-white/5 border-transparent opacity-60' : 'bg-surface border-white/10 hover:border-primary/30'
+                }`}
               >
                 <div className="flex items-center gap-3 overflow-hidden">
                   <button
                     onClick={() => toggleTask(task.id)}
                     className={`flex-shrink-0 w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
                       task.completed 
-                        ? 'bg-emerald-500/20 border-emerald-500 text-emerald-500' 
+                        ? 'bg-emerald-500 border-emerald-500 text-white' 
                         : 'border-gray-500 text-transparent hover:border-primary'
                     }`}
                   >
