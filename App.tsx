@@ -213,7 +213,7 @@ const App: React.FC = () => {
         return (
           <div className="max-w-4xl mx-auto py-8 animate-fade-in">
              <div className="mb-6 text-center">
-               <h2 className="text-3xl font-bold text-gray-900 mb-2">Asistente Virtual Nova</h2>
+               <h2 className="text-3xl font-bold text-gray-900 mb-2">ConecTATE</h2>
                <p className="text-gray-600">Déjanos ayudarte a planificar cada detalle de tu evento.</p>
              </div>
              <AIChatView />

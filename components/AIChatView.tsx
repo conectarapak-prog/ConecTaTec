@@ -9,7 +9,7 @@ const AIChatView: React.FC = () => {
     {
       id: 'welcome',
       role: 'model',
-      text: '¡Hola! Soy Nova, tu Event Planner personal. 🌟\n\nEstoy aquí para ayudarte a planificar cada detalle: desde el cronograma minuto a minuto, sugerencias de catering, hasta la disposición perfecta de las mesas.\n\n¿Qué tipo de evento estamos organizando hoy?',
+      text: '¡Hola! Soy ConecTATE, tu Event Planner personal. 🌟\n\nEstoy aquí para ayudarte a planificar cada detalle: desde el cronograma minuto a minuto, sugerencias de catering, hasta la disposición perfecta de las mesas.\n\n¿Qué tipo de evento estamos organizando hoy?',
       timestamp: new Date()
     }
   ]);
@@ -45,9 +45,6 @@ const AIChatView: React.FC = () => {
 
     try {
       // Format history for the API
-      // Exclude the very last user message we just added locally from the history passed to init, 
-      // as the service likely initializes chat with history then sends the new message.
-      // Actually, standard practice: pass previous conversation as history.
       const history = messages.map(msg => ({
         role: msg.role === 'user' ? 'user' : 'model',
         parts: [{ text: msg.text }]
@@ -91,7 +88,7 @@ const AIChatView: React.FC = () => {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
     doc.setTextColor(234, 88, 12); // Orange color
-    doc.text("Plan de Evento - Nova", 10, 15);
+    doc.text("Plan de Evento - ConecTATE", 10, 15);
     
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
@@ -109,7 +106,7 @@ const AIChatView: React.FC = () => {
       }
 
       const isUser = msg.role === 'user';
-      const roleTitle = isUser ? "Tú:" : "Nova Planner:";
+      const roleTitle = isUser ? "Tú:" : "ConecTATE Planner:";
       
       // Role Title
       doc.setFont("helvetica", "bold");
@@ -131,7 +128,7 @@ const AIChatView: React.FC = () => {
       y += (textLines.length * 5) + 10; 
     });
 
-    doc.save(`nova-planificacion-${Date.now()}.pdf`);
+    doc.save(`conectate-planificacion-${Date.now()}.pdf`);
   };
 
   const handleSendEmail = () => {
@@ -169,7 +166,7 @@ const AIChatView: React.FC = () => {
             <Icons.Cpu className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h3 className="font-bold text-gray-800">Nova Event Planner</h3>
+            <h3 className="font-bold text-gray-800">ConecTATE Event Planner</h3>
             <div className="flex items-center text-xs text-primary font-medium">
               <span className="w-1.5 h-1.5 rounded-full bg-primary mr-1.5 animate-pulse"></span>
               Planificador Integral IA
@@ -290,7 +287,7 @@ const AIChatView: React.FC = () => {
           </button>
         </div>
         <p className="text-[10px] text-center text-gray-400 mt-2">
-          Nova puede cometer errores. Verifica la información importante.
+          ConecTATE puede cometer errores. Verifica la información importante.
         </p>
       </div>
     </div>

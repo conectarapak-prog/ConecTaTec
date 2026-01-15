@@ -57,7 +57,7 @@ const Header: React.FC<HeaderProps> = ({ currentView, setCurrentView, onOpenSign
           `}
         >
           <Icons.Cpu className="w-4 h-4" />
-          <span className="hidden sm:inline">Asistente Nova</span>
+          <span className="hidden sm:inline">ConecTATE</span>
         </button>
 
         <div className="h-6 w-px bg-gray-200 mx-2 hidden sm:block"></div>

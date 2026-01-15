@@ -13,7 +13,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setCurrentView, isOpen, 
   const menuItems = [
     { id: View.DASHBOARD, label: 'Panel Principal', icon: Icons.Dashboard },
     { id: View.ANALYTICS, label: 'Analítica', icon: Icons.Analytics },
-    { id: View.AI_ASSISTANT, label: 'Asistente Nova', icon: Icons.Cpu },
+    { id: View.AI_ASSISTANT, label: 'ConecTATE', icon: Icons.Cpu },
     { id: View.SETTINGS, label: 'Configuración', icon: Icons.Settings },
   ];
 

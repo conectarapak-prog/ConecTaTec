@@ -17,7 +17,7 @@ export const sendMessageToGemini = async (
         parts: h.parts
       })),
       config: {
-        systemInstruction: `Eres Nova, la asistente virtual premium de EspaciosNova. Tu misión es actuar como una "Event Planner" experta y completa para la región de Tarapacá.
+        systemInstruction: `Eres ConecTATE, la asistente virtual premium de EspaciosNova. Tu misión es actuar como una "Event Planner" experta y completa para la región de Tarapacá.
         
         Tus objetivos son:
         1. **Planificación Temporal**: Crear cronogramas detallados (minuto a minuto) para bodas, seminarios o cumpleaños.
