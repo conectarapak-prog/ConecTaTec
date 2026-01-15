@@ -5,6 +5,7 @@ import AIChatView from './components/AIChatView';
 import InteractiveMap from './components/InteractiveMap';
 import SettingsView from './components/SettingsView';
 import SpaceDetailsModal from './components/SpaceDetailsModal'; // Import new modal
+import SignUpModal from './components/SignUpModal'; // Import SignUp modal
 import { View, Space } from './types';
 import { Icons } from './components/Icons';
 
@@ -142,6 +143,7 @@ const spacesData: Space[] = [
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>(View.HOME);
   const [selectedSpace, setSelectedSpace] = useState<Space | null>(null);
+  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
 
   const handleSpaceSelect = (space: Space) => {
     // Open the modal instead of switching views directly
@@ -188,6 +190,7 @@ const App: React.FC = () => {
       <Header 
         currentView={currentView}
         setCurrentView={setCurrentView}
+        onOpenSignUp={() => setIsSignUpOpen(true)}
       />
       
       <main className="container mx-auto px-4 md:px-6 py-6 min-h-screen">
@@ -201,6 +204,12 @@ const App: React.FC = () => {
           onClose={closeModal} 
         />
       )}
+
+      {/* Sign Up Modal Overlay */}
+      <SignUpModal 
+        isOpen={isSignUpOpen}
+        onClose={() => setIsSignUpOpen(false)}
+      />
 
       {/* Simple Footer */}
       <footer className="bg-gray-50 border-t border-gray-100 py-12 mt-12">
