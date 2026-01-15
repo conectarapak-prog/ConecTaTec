@@ -70,7 +70,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitchToSign
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                  <Icons.MapPin className="w-4 h-4 text-white" />
               </div>
-              <span className="font-bold text-xl">EspaciosNova</span>
+              <span className="font-bold text-xl">RinconIQQ</span>
             </div>
             <h2 className="text-3xl font-bold leading-tight mb-4">
               Bienvenido de nuevo.
@@ -90,7 +90,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSwitchToSign
                    </div>
                    <span className="text-sm font-bold text-white">+2k Usuarios</span>
                 </div>
-                <p className="text-xs text-gray-300">Confían en EspaciosNova para sus celebraciones.</p>
+                <p className="text-xs text-gray-300">Confían en RinconIQQ para sus celebraciones.</p>
              </div>
           </div>
         </div>

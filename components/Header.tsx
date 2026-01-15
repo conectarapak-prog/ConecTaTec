@@ -24,7 +24,7 @@ const Header: React.FC<HeaderProps> = ({ currentView, setCurrentView, onOpenSign
             <Icons.MapPin className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-extrabold text-gray-800 leading-none">Espacios<span className="text-primary">Nova</span></h1>
+            <h1 className="text-xl font-extrabold text-gray-800 leading-none">Rincon<span className="text-primary">IQQ</span></h1>
             <p className="text-[10px] text-gray-500 tracking-wider font-medium">EVENTOS & CONVENCIONES</p>
           </div>
         </div>

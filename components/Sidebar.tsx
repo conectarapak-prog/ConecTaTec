@@ -37,10 +37,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setCurrentView, isOpen, 
           {/* Logo */}
           <div className="h-16 flex items-center px-6 border-b border-white/10">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center mr-3">
-              <span className="text-white font-bold text-lg">N</span>
+              <span className="text-white font-bold text-lg">R</span>
             </div>
             <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-              Nova
+              RinconIQQ
             </h1>
           </div>
 

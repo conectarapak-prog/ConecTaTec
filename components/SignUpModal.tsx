@@ -79,7 +79,7 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSwitchToLo
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                  <Icons.MapPin className="w-4 h-4 text-white" />
               </div>
-              <span className="font-bold text-xl">EspaciosNova</span>
+              <span className="font-bold text-xl">RinconIQQ</span>
             </div>
             <h2 className="text-3xl font-bold leading-tight mb-4">
               Crea experiencias inolvidables.
@@ -114,7 +114,7 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSwitchToLo
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-2">¡Cuenta Creada!</h3>
               <p className="text-gray-500 mb-8 max-w-xs">
-                Te hemos enviado un correo de confirmación. Bienvenido a EspaciosNova.
+                Te hemos enviado un correo de confirmación. Bienvenido a RinconIQQ.
               </p>
             </div>
           ) : (
@@ -238,7 +238,7 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSwitchToLo
                       <Icons.Check className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 pointer-events-none left-0.5" />
                     </div>
                     <span className="text-xs text-gray-500 leading-snug group-hover:text-gray-700 transition-colors">
-                      Acepto los <a href="#" className="text-primary hover:underline">Términos y Condiciones</a> y confirmo que he leído las políticas de uso de EspaciosNova.
+                      Acepto los <a href="#" className="text-primary hover:underline">Términos y Condiciones</a> y confirmo que he leído las políticas de uso de RinconIQQ.
                     </span>
                   </label>
 

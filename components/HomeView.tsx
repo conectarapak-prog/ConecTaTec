@@ -189,7 +189,7 @@ const HomeView: React.FC<HomeViewProps> = ({ spaces, onSelectSpace }) => {
               </div>
               <div className="flex items-center gap-2">
                 <Icons.Mail className="w-5 h-5" />
-                <span>hola@espaciosnova.cl</span>
+                <span>hola@rinconiqq.cl</span>
               </div>
             </div>
           </div>

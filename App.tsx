@@ -282,7 +282,7 @@ const App: React.FC = () => {
                  <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                     <Icons.MapPin className="w-4 h-4 text-white" />
                  </div>
-                 <span className="font-bold text-lg">EspaciosNova</span>
+                 <span className="font-bold text-lg">RinconIQQ</span>
               </div>
               <p className="text-sm text-gray-500">
                 La plataforma líder en gestión de espacios para eventos en la región de Tarapacá.
@@ -315,7 +315,7 @@ const App: React.FC = () => {
            </div>
         </div>
         <div className="container mx-auto px-4 mt-8 pt-8 border-t border-gray-200 text-center text-xs text-gray-400">
-           © 2024 EspaciosNova. Todos los derechos reservados.
+           © 2024 RinconIQQ. Todos los derechos reservados.
         </div>
       </footer>
     </div>
