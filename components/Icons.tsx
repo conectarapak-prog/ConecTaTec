@@ -60,7 +60,8 @@ import {
   Briefcase,
   ArrowUp,
   ChevronsUpDown,
-  Ban
+  Ban,
+  Ruler
 } from 'lucide-react';
 
 export const Icons = {
@@ -125,5 +126,6 @@ export const Icons = {
   Briefcase: Briefcase,
   ArrowUp: ArrowUp,
   ChevronsUpDown: ChevronsUpDown,
-  Ban: Ban
+  Ban: Ban,
+  Ruler: Ruler
 };

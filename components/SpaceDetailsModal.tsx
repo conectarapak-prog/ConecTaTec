@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Space } from '../types';
 import { Icons } from './Icons';
 
@@ -7,10 +7,29 @@ interface SpaceDetailsModalProps {
   onClose: () => void;
 }
 
+interface Point {
+  x: number;
+  y: number;
+}
+
+interface Measurement {
+  id: string;
+  start: Point;
+  end: Point;
+  distance: string;
+}
+
 const SpaceDetailsModal: React.FC<SpaceDetailsModalProps> = ({ space, onClose }) => {
   const [isPricingOpen, setIsPricingOpen] = useState(false);
   const [selectedHours, setSelectedHours] = useState(2); // Default 2 hours
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
+  // Measurement State
+  const [isMeasuring, setIsMeasuring] = useState(false);
+  const [measurements, setMeasurements] = useState<Measurement[]>([]);
+  const [tempPoint, setTempPoint] = useState<Point | null>(null);
+  const [mousePos, setMousePos] = useState<Point | null>(null);
+  const imageRef = useRef<HTMLDivElement>(null);
 
   // Fallback price calculation if pricePerHour isn't in mock data
   const basePricePerHour = space.pricePerHour || Math.round(space.price / 10);
@@ -19,14 +38,70 @@ const SpaceDetailsModal: React.FC<SpaceDetailsModalProps> = ({ space, onClose })
   // Prepare images array
   const images = space.images && space.images.length > 0 ? space.images : [space.imageUrl];
 
+  // Reset measurements when image changes
+  useEffect(() => {
+    setMeasurements([]);
+    setTempPoint(null);
+    setIsMeasuring(false);
+  }, [currentImageIndex]);
+
   const handleNextImage = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (isMeasuring) return;
     setCurrentImageIndex((prev) => (prev + 1) % images.length);
   };
 
   const handlePrevImage = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (isMeasuring) return;
     setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  // Measurement Logic
+  const handleImageClick = (e: React.MouseEvent) => {
+    if (!isMeasuring || !imageRef.current) return;
+    
+    const rect = imageRef.current.getBoundingClientRect();
+    // Calculate percentage coordinates relative to the container
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    
+    if (!tempPoint) {
+      setTempPoint({ x, y });
+    } else {
+      // Finish measurement
+      // Just a mock calculation for demo: assuming width is ~10 meters
+      const distanceVal = Math.sqrt(Math.pow(x - tempPoint.x, 2) + Math.pow(y - tempPoint.y, 2));
+      const meters = (distanceVal * 0.15).toFixed(2); 
+      
+      const newMeasurement: Measurement = {
+        id: Date.now().toString(),
+        start: tempPoint,
+        end: { x, y },
+        distance: `${meters}m`
+      };
+      
+      setMeasurements([...measurements, newMeasurement]);
+      setTempPoint(null);
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isMeasuring || !imageRef.current) return;
+    const rect = imageRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setMousePos({ x, y });
+  };
+
+  const toggleMeasureMode = () => {
+    setIsMeasuring(!isMeasuring);
+    setTempPoint(null);
+  };
+
+  const clearMeasurements = () => {
+    setMeasurements([]);
+    setTempPoint(null);
   };
 
   // Helper to map amenity strings to icons
@@ -61,7 +136,7 @@ const SpaceDetailsModal: React.FC<SpaceDetailsModalProps> = ({ space, onClose })
         onClick={onClose}
       />
       
-      {/* Modal Container: Fixed height on desktop for independent scrolling */}
+      {/* Modal Container */}
       <div className="relative w-full max-w-5xl max-h-[90vh] md:h-[85vh] bg-white rounded-3xl shadow-2xl flex flex-col md:flex-row animate-fade-in overflow-hidden">
         
         {/* Close Button Mobile */}
@@ -72,26 +147,135 @@ const SpaceDetailsModal: React.FC<SpaceDetailsModalProps> = ({ space, onClose })
           <Icons.Close className="w-5 h-5" />
         </button>
 
-        {/* Left Col: Image Carousel */}
-        <div className="w-full md:w-2/5 h-56 md:h-full relative bg-gray-100 flex-shrink-0 group/carousel">
+        {/* Left Col: Image Carousel & Measurement Tool */}
+        <div 
+          ref={imageRef}
+          className={`w-full md:w-2/5 h-56 md:h-full relative bg-gray-900 flex-shrink-0 group/carousel select-none overflow-hidden ${isMeasuring ? 'cursor-crosshair' : ''}`}
+          onClick={handleImageClick}
+          onMouseMove={handleMouseMove}
+        >
           <img 
             src={images[currentImageIndex]} 
             alt={`${space.name} - View ${currentImageIndex + 1}`} 
-            className="w-full h-full object-cover transition-opacity duration-300"
+            className={`w-full h-full object-cover transition-all duration-300 ${isMeasuring ? 'opacity-90 scale-[1.02]' : 'opacity-100'}`}
           />
           
-          {/* Carousel Navigation */}
-          {images.length > 1 && (
+          {/* Measurement Toolbar (Centered Top) */}
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
+            <div className="flex items-center gap-1 bg-black/60 backdrop-blur-md p-1 rounded-full border border-white/20 shadow-lg">
+              <button 
+                onClick={(e) => { e.stopPropagation(); toggleMeasureMode(); }}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all ${
+                  isMeasuring 
+                    ? 'bg-primary text-white shadow-md' 
+                    : 'bg-transparent text-white hover:bg-white/10'
+                }`}
+              >
+                <Icons.Ruler className="w-4 h-4" />
+                {isMeasuring ? 'Finalizar' : 'Medir'}
+              </button>
+              
+              {measurements.length > 0 && (
+                <>
+                  <div className="w-px h-4 bg-white/20 mx-1"></div>
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); clearMeasurements(); }}
+                    className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-full transition-colors group"
+                    title="Borrar mediciones"
+                  >
+                    <Icons.Trash className="w-4 h-4 group-hover:text-red-400 transition-colors" />
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Instructions Overlay */}
+          {isMeasuring && (
+            <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+              <div className="bg-black/70 backdrop-blur text-white text-[11px] px-3 py-1.5 rounded-lg shadow-lg border border-white/10 animate-bounce-slow text-center whitespace-nowrap">
+                {tempPoint 
+                  ? "Haz clic para terminar la línea" 
+                  : "Haz clic en un punto para empezar a medir"}
+              </div>
+            </div>
+          )}
+
+          {/* Measurement Layer (SVG Overlay) */}
+          <svg className="absolute inset-0 w-full h-full pointer-events-none z-10">
+             <defs>
+               <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+                 <feDropShadow dx="0" dy="1" stdDeviation="2" floodColor="black" floodOpacity="0.8"/>
+               </filter>
+             </defs>
+             {measurements.map(m => (
+               <g key={m.id}>
+                 <line 
+                   x1={`${m.start.x}%`} y1={`${m.start.y}%`} 
+                   x2={`${m.end.x}%`} y2={`${m.end.y}%`} 
+                   stroke="white" strokeWidth="2.5" strokeDasharray="5 3"
+                   filter="url(#shadow)"
+                 />
+                 <circle cx={`${m.start.x}%`} cy={`${m.start.y}%`} r="4" fill="white" filter="url(#shadow)" />
+                 <circle cx={`${m.end.x}%`} cy={`${m.end.y}%`} r="4" fill="white" filter="url(#shadow)" />
+                 
+                 {/* Label Box */}
+                 <rect 
+                   x={`${(m.start.x + m.end.x) / 2}%`} 
+                   y={`${(m.start.y + m.end.y) / 2}%`}
+                   width="42" height="20" rx="6" fill="#ea580c"
+                   transform="translate(-21, -10)"
+                   filter="url(#shadow)"
+                 />
+                 <text 
+                   x={`${(m.start.x + m.end.x) / 2}%`} 
+                   y={`${(m.start.y + m.end.y) / 2}%`} 
+                   fill="white" fontSize="11" fontWeight="bold" textAnchor="middle" dy="4"
+                 >
+                   {m.distance}
+                 </text>
+                 
+                 {/* Delete Interaction for specific line */}
+                 <circle 
+                   cx={`${(m.start.x + m.end.x) / 2}%`} 
+                   cy={`${(m.start.y + m.end.y) / 2}%`} 
+                   r="12" fill="transparent" cursor="pointer" pointerEvents="auto"
+                   onClick={(e) => {
+                     e.stopPropagation();
+                     setMeasurements(measurements.filter(i => i.id !== m.id));
+                   }}
+                 />
+               </g>
+             ))}
+             
+             {/* Active Drag Line */}
+             {isMeasuring && tempPoint && mousePos && (
+               <g>
+                 <line 
+                   x1={`${tempPoint.x}%`} y1={`${tempPoint.y}%`} 
+                   x2={`${mousePos.x}%`} y2={`${mousePos.y}%`} 
+                   stroke="#ea580c" strokeWidth="2.5" strokeDasharray="5 3"
+                   filter="url(#shadow)"
+                 />
+                 <circle cx={`${tempPoint.x}%`} cy={`${tempPoint.y}%`} r="4" fill="#ea580c" filter="url(#shadow)" />
+                 <circle cx={`${mousePos.x}%`} cy={`${mousePos.y}%`} r="4" fill="#ea580c" filter="url(#shadow)" />
+               </g>
+             )}
+          </svg>
+
+          
+          {/* Carousel Navigation (Hidden when measuring) */}
+          {images.length > 1 && !isMeasuring && (
             <>
               <button 
                 onClick={handlePrevImage}
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-1.5 rounded-full backdrop-blur-sm opacity-0 group-hover/carousel:opacity-100 transition-opacity disabled:opacity-0"
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full backdrop-blur-sm opacity-0 group-hover/carousel:opacity-100 transition-opacity disabled:opacity-0 z-20"
               >
                 <Icons.ChevronLeft className="w-5 h-5" />
               </button>
               <button 
                 onClick={handleNextImage}
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-1.5 rounded-full backdrop-blur-sm opacity-0 group-hover/carousel:opacity-100 transition-opacity disabled:opacity-0"
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full backdrop-blur-sm opacity-0 group-hover/carousel:opacity-100 transition-opacity disabled:opacity-0 z-20"
               >
                 <Icons.ChevronRight className="w-5 h-5" />
               </button>
@@ -116,9 +300,8 @@ const SpaceDetailsModal: React.FC<SpaceDetailsModalProps> = ({ space, onClose })
             </>
           )}
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent md:hidden pointer-events-none"></div>
-          
-          <div className="absolute bottom-0 left-0 w-full p-5 text-white md:hidden pointer-events-none">
+          <div className={`absolute bottom-0 left-0 w-full p-5 text-white md:hidden pointer-events-none transition-opacity ${isMeasuring ? 'opacity-0' : 'opacity-100'}`}>
+             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent -z-10"></div>
             <span className="inline-block px-2.5 py-0.5 mb-1 text-[10px] font-bold uppercase tracking-wider bg-primary/90 rounded-full">
               {space.type}
             </span>
