@@ -9,13 +9,12 @@ export const sendMessageToGemini = async (
   try {
     const model = 'gemini-3-flash-preview';
     
-    // For a simple chat experience, we can use generateContent with system instructions
-    // regarding the persona.
+    // Updated persona for Capital Raising & Manufacturing context
     const response = await ai.models.generateContent({
       model: model,
-      contents: message, // In a full implementation, we would pass history here properly formatted
+      contents: message, 
       config: {
-        systemInstruction: "Eres Nova, un asistente de plataforma inteligente, profesional y conciso. Ayudas a los usuarios a entender sus datos y gestionar la plataforma. Responde en español.",
+        systemInstruction: "Eres Nova, una consultora experta en levantamiento de capital (crowdfunding/inversión), manufactura masiva y desarrollo de marca regional. Tu objetivo es ayudar a emprendedores e industriales a escalar sus proyectos, optimizar cadenas de suministro y atraer inversores. Tus respuestas son profesionales, estratégicas y centradas en la innovación industrial. Responde en español.",
       }
     });
 

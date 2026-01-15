@@ -4,14 +4,24 @@ import { StatCard } from './StatCard';
 import { Icons } from './Icons';
 import { ChartDataPoint, Task } from '../types';
 
-const data: ChartDataPoint[] = [
-  { name: 'Lun', value: 4000, revenue: 2400 },
-  { name: 'Mar', value: 3000, revenue: 1398 },
-  { name: 'Mie', value: 2000, revenue: 9800 },
-  { name: 'Jue', value: 2780, revenue: 3908 },
-  { name: 'Vie', value: 1890, revenue: 4800 },
-  { name: 'Sab', value: 2390, revenue: 3800 },
-  { name: 'Dom', value: 3490, revenue: 4300 },
+// Data simulating Capital Raised vs Manufacturing Costs over time
+const capitalData: ChartDataPoint[] = [
+  { name: 'Ene', value: 120000, revenue: 45000 },
+  { name: 'Feb', value: 155000, revenue: 52000 },
+  { name: 'Mar', value: 280000, revenue: 140000 },
+  { name: 'Abr', value: 340000, revenue: 160000 },
+  { name: 'May', value: 490000, revenue: 210000 },
+  { name: 'Jun', value: 650000, revenue: 250000 },
+  { name: 'Jul', value: 890000, revenue: 380000 },
+];
+
+// Data showing innovation by sector
+const sectorData = [
+  { name: 'Agroindustria', value: 45 },
+  { name: 'Textil', value: 32 },
+  { name: 'Tecnología', value: 28 },
+  { name: 'Artesanal', value: 15 },
+  { name: 'Automotriz', value: 10 },
 ];
 
 const DashboardView: React.FC = () => {
@@ -28,10 +38,11 @@ const DashboardView: React.FC = () => {
         console.error('Error parsing tasks:', error);
       }
     } else {
-      // Initial sample tasks
+      // Initial sample tasks focusing on manufacturing and funding
       setTasks([
-        { id: '1', text: 'Revisar reporte semanal', completed: false },
-        { id: '2', text: 'Actualizar base de usuarios', completed: true },
+        { id: '1', text: 'Validar prototipo v2 con planta', completed: false },
+        { id: '2', text: 'Contactar proveedores de acero', completed: true },
+        { id: '3', text: 'Preparar pitch para ronda semilla', completed: false },
       ]);
     }
   }, []);
@@ -66,31 +77,31 @@ const DashboardView: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Stats Grid */}
+      {/* Stats Grid - Focused on Capital & Manufacturing */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
-          title="Ingresos Totales" 
-          value="$45,231.89" 
-          change={20.1} 
+          title="Capital Levantado" 
+          value="$890,000" 
+          change={125.4} 
           icon={<Icons.Dollar className="w-5 h-5" />} 
         />
         <StatCard 
-          title="Usuarios Activos" 
-          value="2,345" 
-          change={15.3} 
+          title="Inversores Activos" 
+          value="456" 
+          change={12.8} 
           icon={<Icons.Users className="w-5 h-5" />} 
         />
         <StatCard 
-          title="Ventas" 
-          value="12,095" 
-          change={-4.5} 
-          icon={<Icons.Activity className="w-5 h-5" />} 
+          title="Lotes en Producción" 
+          value="24" 
+          change={8.5} 
+          icon={<Icons.Factory className="w-5 h-5" />} 
         />
         <StatCard 
-          title="Tasa de Rebote" 
-          value="24.57%" 
-          change={-2.1} 
-          icon={<Icons.TrendingUp className="w-5 h-5" />} 
+          title="Proyectos Regionales" 
+          value="18" 
+          change={3.2} 
+          icon={<Icons.Globe className="w-5 h-5" />} 
         />
       </div>
 
@@ -99,16 +110,18 @@ const DashboardView: React.FC = () => {
         {/* Main Chart */}
         <div className="lg:col-span-2 glass-panel rounded-xl p-6">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-lg font-semibold text-white">Resumen de Rendimiento</h3>
+            <div>
+               <h3 className="text-lg font-semibold text-white">Crecimiento de Fondos vs. Producción</h3>
+               <p className="text-xs text-gray-400">Comparativa de capital entrante y costo de manufactura</p>
+            </div>
             <select className="bg-surface border border-white/10 text-xs text-gray-300 rounded-lg px-2 py-1 outline-none">
-              <option>Últimos 7 días</option>
-              <option>Este mes</option>
-              <option>Este año</option>
+              <option>Año Actual</option>
+              <option>Histórico</option>
             </select>
           </div>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data}>
+              <AreaChart data={capitalData}>
                 <defs>
                   <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
@@ -121,13 +134,15 @@ const DashboardView: React.FC = () => {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
                 <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
+                <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value/1000}k`} />
                 <Tooltip 
+                  formatter={(value) => [`$${value}`, '']}
                   contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', borderRadius: '8px', color: '#fff' }}
                   itemStyle={{ color: '#fff' }}
+                  labelStyle={{ color: '#94a3b8' }}
                 />
-                <Area type="monotone" dataKey="value" stroke="#6366f1" strokeWidth={2} fillOpacity={1} fill="url(#colorValue)" />
-                <Area type="monotone" dataKey="revenue" stroke="#38bdf8" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" />
+                <Area name="Capital Levantado" type="monotone" dataKey="value" stroke="#6366f1" strokeWidth={2} fillOpacity={1} fill="url(#colorValue)" />
+                <Area name="Costo Producción" type="monotone" dataKey="revenue" stroke="#38bdf8" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -135,79 +150,91 @@ const DashboardView: React.FC = () => {
 
         {/* Secondary Chart/Widget */}
         <div className="glass-panel rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-white mb-6">Fuentes de Tráfico</h3>
+          <h3 className="text-lg font-semibold text-white mb-2">Marca Regional</h3>
+          <p className="text-xs text-gray-400 mb-6">Inversión por Sector Productivo</p>
           <div className="h-[200px] w-full mb-4">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data.slice(0, 5)}>
-                <Bar dataKey="value" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+              <BarChart data={sectorData} layout="vertical">
+                 <XAxis type="number" hide />
+                 <YAxis dataKey="name" type="category" width={90} tick={{fill: '#94a3b8', fontSize: 11}} axisLine={false} tickLine={false}/>
+                 <Tooltip cursor={{fill: 'transparent'}} contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#fff' }} />
+                <Bar dataKey="value" fill="#8b5cf6" radius={[0, 4, 4, 0]} barSize={20} />
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <div className="space-y-3">
-             <div className="flex justify-between items-center text-sm">
-                <span className="text-gray-400 flex items-center"><div className="w-2 h-2 rounded-full bg-violet-500 mr-2"></div>Directo</span>
-                <span className="text-white font-medium">45%</span>
+          <div className="p-3 bg-white/5 rounded-lg border border-white/5">
+             <div className="flex items-center justify-between text-sm mb-1">
+                <span className="text-emerald-400 font-medium">Líder: Agroindustria</span>
+                <span className="text-white">45%</span>
              </div>
-             <div className="flex justify-between items-center text-sm">
-                <span className="text-gray-400 flex items-center"><div className="w-2 h-2 rounded-full bg-indigo-500 mr-2"></div>Redes Sociales</span>
-                <span className="text-white font-medium">32%</span>
-             </div>
-             <div className="flex justify-between items-center text-sm">
-                <span className="text-gray-400 flex items-center"><div className="w-2 h-2 rounded-full bg-sky-500 mr-2"></div>Referidos</span>
-                <span className="text-white font-medium">23%</span>
-             </div>
+             <p className="text-xs text-gray-500">El sector de empaquetado sostenible está impulsando la región.</p>
           </div>
         </div>
       </div>
 
-      {/* Bottom Row: Transactions & To-Do */}
+      {/* Bottom Row: Investments & Manufacturing Tasks */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent Activity Table */}
+        {/* Recent Investments Table */}
         <div className="lg:col-span-2 glass-panel rounded-xl overflow-hidden flex flex-col">
-          <div className="p-6 border-b border-white/10">
-            <h3 className="text-lg font-semibold text-white">Transacciones Recientes</h3>
+          <div className="p-6 border-b border-white/10 flex justify-between items-center">
+            <h3 className="text-lg font-semibold text-white">Últimos Patrocinios</h3>
+            <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded">Tiempo Real</span>
           </div>
           <div className="overflow-x-auto flex-1">
             <table className="w-full text-sm text-left">
               <thead className="text-xs text-gray-400 uppercase bg-white/5">
                 <tr>
-                  <th className="px-6 py-3">ID Transacción</th>
-                  <th className="px-6 py-3">Usuario</th>
+                  <th className="px-6 py-3">Inversor</th>
+                  <th className="px-6 py-3">Proyecto</th>
                   <th className="px-6 py-3">Fecha</th>
                   <th className="px-6 py-3">Monto</th>
-                  <th className="px-6 py-3">Estado</th>
+                  <th className="px-6 py-3">Recompensa</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
                 <tr className="hover:bg-white/5 transition-colors">
-                  <td className="px-6 py-4 font-medium text-white">#TRX-001</td>
-                  <td className="px-6 py-4 text-gray-300">Ana García</td>
+                  <td className="px-6 py-4 font-medium text-white flex items-center gap-2">
+                     <div className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs">AG</div>
+                     Ana García
+                  </td>
+                  <td className="px-6 py-4 text-gray-300">EcoTextiles Mx</td>
                   <td className="px-6 py-4 text-gray-400">Hoy, 14:30</td>
-                  <td className="px-6 py-4 text-white font-medium">$120.00</td>
-                  <td className="px-6 py-4"><span className="px-2 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Completado</span></td>
+                  <td className="px-6 py-4 text-emerald-400 font-medium">$5,000</td>
+                  <td className="px-6 py-4"><span className="px-2 py-1 rounded-full text-xs font-medium bg-white/10 text-gray-300">Lote Temprano</span></td>
                 </tr>
                 <tr className="hover:bg-white/5 transition-colors">
-                  <td className="px-6 py-4 font-medium text-white">#TRX-002</td>
-                  <td className="px-6 py-4 text-gray-300">Carlos Ruiz</td>
+                  <td className="px-6 py-4 font-medium text-white flex items-center gap-2">
+                     <div className="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center text-xs">CR</div>
+                     Carlos Ruiz
+                  </td>
+                  <td className="px-6 py-4 text-gray-300">Robótica Agrícola</td>
                   <td className="px-6 py-4 text-gray-400">Ayer, 09:15</td>
-                  <td className="px-6 py-4 text-white font-medium">$340.50</td>
-                  <td className="px-6 py-4"><span className="px-2 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">Pendiente</span></td>
+                  <td className="px-6 py-4 text-emerald-400 font-medium">$25,000</td>
+                  <td className="px-6 py-4"><span className="px-2 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">Acciones</span></td>
                 </tr>
                 <tr className="hover:bg-white/5 transition-colors">
-                  <td className="px-6 py-4 font-medium text-white">#TRX-003</td>
-                  <td className="px-6 py-4 text-gray-300">Maria Lopez</td>
-                  <td className="px-6 py-4 text-gray-400">23 Oct, 2023</td>
-                  <td className="px-6 py-4 text-white font-medium">$89.99</td>
-                  <td className="px-6 py-4"><span className="px-2 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Completado</span></td>
+                  <td className="px-6 py-4 font-medium text-white flex items-center gap-2">
+                     <div className="w-6 h-6 rounded-full bg-pink-500/20 text-pink-400 flex items-center justify-center text-xs">ML</div>
+                     Maria Lopez
+                  </td>
+                  <td className="px-6 py-4 text-gray-300">Cerámica Moderna</td>
+                  <td className="px-6 py-4 text-gray-400">23 Oct</td>
+                  <td className="px-6 py-4 text-emerald-400 font-medium">$1,200</td>
+                  <td className="px-6 py-4"><span className="px-2 py-1 rounded-full text-xs font-medium bg-white/10 text-gray-300">Producto</span></td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
 
-        {/* To-Do List Widget */}
+        {/* Industrial To-Do List */}
         <div className="glass-panel rounded-xl p-6 flex flex-col h-[400px] lg:h-auto">
-          <h3 className="text-lg font-semibold text-white mb-4">Tareas Pendientes</h3>
+          <div className="flex items-center gap-2 mb-4">
+             <div className="p-1.5 bg-accent/10 rounded-lg">
+                <Icons.Hammer className="w-4 h-4 text-accent" />
+             </div>
+             <h3 className="text-lg font-semibold text-white">Gestión de Producción</h3>
+          </div>
           
           <div className="flex gap-2 mb-4">
             <input
@@ -215,7 +242,7 @@ const DashboardView: React.FC = () => {
               value={newTask}
               onChange={(e) => setNewTask(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Nueva tarea..."
+              placeholder="Tarea de manufactura..."
               className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary/50 transition-colors placeholder-gray-500"
             />
             <button
@@ -230,7 +257,7 @@ const DashboardView: React.FC = () => {
             {tasks.length === 0 && (
               <div className="h-full flex flex-col items-center justify-center text-gray-500 space-y-2 opacity-50">
                 <Icons.CheckCircle className="w-8 h-8" />
-                <p className="text-sm">Todo al día</p>
+                <p className="text-sm">Producción al día</p>
               </div>
             )}
             {tasks.map(task => (

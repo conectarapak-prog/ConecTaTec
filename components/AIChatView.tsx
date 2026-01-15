@@ -9,7 +9,7 @@ const AIChatView: React.FC = () => {
     {
       id: 'welcome',
       role: 'model',
-      text: '¡Hola! Soy Nova, tu asistente de inteligencia artificial. ¿En qué puedo ayudarte a optimizar tu plataforma hoy?',
+      text: '¡Hola! Soy Nova, tu experta en innovación industrial y capital. ¿Necesitas ayuda para estructurar tu ronda de inversión o optimizar tu proceso de manufactura?',
       timestamp: new Date()
     }
   ]);
@@ -80,7 +80,7 @@ const AIChatView: React.FC = () => {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
     doc.setTextColor(99, 102, 241); // Indigo color
-    doc.text("Reporte de Asistente Nova", 10, 15);
+    doc.text("Reporte Estratégico Nova", 10, 15);
     
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
@@ -98,7 +98,7 @@ const AIChatView: React.FC = () => {
       }
 
       const isUser = msg.role === 'user';
-      const roleTitle = isUser ? "Usuario:" : "Nova AI:";
+      const roleTitle = isUser ? "Emprendedor:" : "Nova IA:";
       
       // Role Title
       doc.setFont("helvetica", "bold");
@@ -118,7 +118,7 @@ const AIChatView: React.FC = () => {
       y += (textLines.length * 5) + 10; // Add spacing between messages
     });
 
-    doc.save(`nova-consulta-${Date.now()}.pdf`);
+    doc.save(`nova-estrategia-${Date.now()}.pdf`);
   };
 
   const handleSendEmail = () => {
@@ -149,10 +149,10 @@ const AIChatView: React.FC = () => {
             <Icons.Cpu className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h3 className="font-semibold text-white">Asistente Nova</h3>
+            <h3 className="font-semibold text-white">Asistente Industrial Nova</h3>
             <div className="flex items-center text-xs text-emerald-400">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
-              En línea con Gemini 3.0
+              En línea - Experta en Manufactura
             </div>
           </div>
         </div>
@@ -176,7 +176,7 @@ const AIChatView: React.FC = () => {
           <button 
             onClick={handleDownloadPDF}
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 border border-primary/20 hover:border-primary/40 transition-colors text-xs font-medium text-primary hover:text-primary-100"
-            title="Descargar historial en PDF"
+            title="Descargar plan en PDF"
           >
             <Icons.Download className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">PDF</span>
@@ -240,7 +240,7 @@ const AIChatView: React.FC = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyPress}
-            placeholder="Escribe tu consulta sobre la plataforma..."
+            placeholder="Consulta sobre proveedores, costos o estrategias de inversión..."
             className="w-full bg-background/50 border border-white/10 rounded-xl py-4 pl-4 pr-12 text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-inner"
             disabled={isLoading}
           />
@@ -273,7 +273,7 @@ const AIChatView: React.FC = () => {
         </div>
 
         <p className="text-center text-[10px] text-gray-600 mt-2 sm:mt-2 hidden sm:block">
-          Nova utiliza Gemini AI y puede cometer errores. Verifica la información importante.
+          Nova utiliza inteligencia artificial para escalar tu negocio. Verifica datos financieros críticos.
         </p>
       </div>
     </div>

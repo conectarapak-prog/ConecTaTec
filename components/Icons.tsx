@@ -30,7 +30,11 @@ import {
   Lock,
   Eye,
   EyeOff,
-  Download
+  Download,
+  Factory,
+  Package,
+  Hammer,
+  Truck
 } from 'lucide-react';
 
 export const Icons = {
@@ -64,5 +68,9 @@ export const Icons = {
   Lock: Lock,
   Eye: Eye,
   EyeOff: EyeOff,
-  Download: Download
+  Download: Download,
+  Factory: Factory,
+  Package: Package,
+  Hammer: Hammer,
+  Truck: Truck
 };
